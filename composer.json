@@ -1,0 +1,38 @@
+{
+    "name": "mobimarket/black-belt",
+    "description": "BlackBelt API integration",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "guzzlehttp/guzzle": "^6.5",
+        "illuminate/support": "~5.5.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.1"
+    },
+    "authors": [
+        {
+            "name": "Scott-David Jones",
+            "email": "scott@mobi-market.co.uk"
+        },
+        {
+            "name": "Callum Slaney-Flett",
+            "email": "callum@mobi-market.co.uk"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "MobiMarket\\BlackBelt\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MobiMarket\\BlackBelt\\BlackBeltServiceProvider"
+            ],
+            "aliases": {
+                "BlackBelt": "MobiMarket\\BlackBelt\\BlackBeltFacade"
+            }
+        }
+    }
+}
