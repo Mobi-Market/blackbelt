@@ -9,9 +9,11 @@ class DownloadReportResponse extends BaseResponse
 {
     public $report;
 
-    public function __construct(stdClass $response): void
+    public function __construct(stdClass $response)
     {
-        $this->report = simplexml_load_string($response->reportXML);
+        if (isset($response->report)) {
+            $this->report = simplexml_load_string($response->report);
+        }
 
         parent::__construct($response);
     }

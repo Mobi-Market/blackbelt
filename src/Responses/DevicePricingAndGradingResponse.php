@@ -15,7 +15,7 @@ class DevicePricingAndGradingResponse extends BaseResponse
     public $pricingData;
     public $pricingVarients;
 
-    public function __construct(stdClass $response): void
+    public function __construct(stdClass $response)
     {
         $this->deviceName       = $response->deviceName;
         $this->imei             = $response->imei;

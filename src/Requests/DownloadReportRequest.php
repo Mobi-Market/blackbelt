@@ -7,28 +7,24 @@ use MobiMarket\BlackBelt\Requests\BaseRequest;
 
 class DownloadReportRequest extends BaseRequest
 {
+    const TYPE_DATAWIPE = 'datawipe';
+    const TYPE_ANALYST  = 'analyst';
+    const TYPE_OTA      = 'OTA-analyst';
+    const FORMAT_PDF    = 'pdf';
+    const FORMAT_XML    = 'xml';
+
     public $reportType;
     public $reportFormat;
     public $imei;
     public $serialNumber;
     public $reportId;
 
-    private $validReportsTypes = [
-        'datawipe',
-        'analyst',
-        'OTA-analyst',
-    ];
-
-    private $validReportsFormats = [
-        'pdf',
-        'xml',
-    ];
     /**
      * @throws InvalidReportTypeException 
      */
     public function setReportType(string $reportType): void
     {
-        if (!in_array($reportType, $this->validReportsTypes)) {
+        if (!in_array($reportType, [static::TYPE_ANALYST, static::TYPE_DATAWIPE, static::TYPE_OTA])) {
             throw new InvalidReportTypeException("Report `{$reportType}` is not a valid report type.");
         }
 
@@ -37,9 +33,9 @@ class DownloadReportRequest extends BaseRequest
     /**
      * @throws InvalidReportTypeException 
      */
-    public function setReportFormat(string $reportFormat = 'xml'): void
+    public function setReportFormat(string $reportFormat): void
     {
-        if (!in_array($reportFormat, $this->validReportsFormats)) {
+        if (!in_array($reportFormat, [static::FORMAT_PDF, static::FORMAT_XML])) {
             throw new InvalidReportTypeException("Report Format `{$reportFormat}` is not a valid report format.");
         }
 

@@ -9,7 +9,7 @@ class AuthTokenResponse extends BaseTokenResponse
 {
     public $authToken;
 
-    public function __construct(stdClass $response): void
+    public function __construct(stdClass $response)
     {
         $this->authToken = $response->authToken;
 

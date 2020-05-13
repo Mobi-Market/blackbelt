@@ -7,11 +7,11 @@ use stdClass;
 
 class AccessTokenResponse extends BaseTokenResponse
 {
-    public $authToken;
+    public $accessToken;
 
-    public function __construct(stdClass $response): void
+    public function __construct(stdClass $response)
     {
-        $this->accessToken = $response->authToken;
+        $this->accessToken = $response->accessToken;
 
         parent::__construct($response);
     }

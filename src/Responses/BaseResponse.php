@@ -11,7 +11,7 @@ class BaseResponse
     public $status;
     public $description;
 
-    public function __construct(stdClass $response): void
+    public function __construct(stdClass $response)
     {
         $this->transactionId = $response->transactionID;
         $this->code = $response->code;

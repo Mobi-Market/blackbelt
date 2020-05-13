@@ -11,7 +11,7 @@ class BaseTokenResponse extends BaseResponse
     public $TTL;
     public $baseURL;
 
-    public function __construct(stdClass $response): void
+    public function __construct(stdClass $response)
     {
         $this->grantType = $response->grantType;
         $this->TTL = $response->TTL;

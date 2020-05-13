@@ -6,7 +6,7 @@ class BaseRequest
 {
     public $deviceID;
 
-    public function __construct(string $deviceId): void
+    public function setDeviceId(string $deviceId): void
     {
         $this->deviceID = $deviceId;
     }

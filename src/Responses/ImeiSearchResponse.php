@@ -10,7 +10,7 @@ class ImeiSearchResponse extends BaseResponse
 {
     public $devices = [];
 
-    public function __construct(stdClass $response): void
+    public function __construct(stdClass $response)
     {
         $this->report = simplexml_load_string($response->reportXML);
         foreach ($this->report->devices->device as $device) {

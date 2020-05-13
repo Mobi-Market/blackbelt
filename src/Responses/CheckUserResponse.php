@@ -9,7 +9,7 @@ class CheckUserResponse extends BaseResponse
 {
     public $userStatus;
 
-    public function __construct(stdClass $response): void
+    public function __construct(stdClass $response)
     {
         $this->userStatus = $response->userStatus;
 

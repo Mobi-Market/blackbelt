@@ -10,7 +10,6 @@ use MobiMarket\BlackBelt\Requests\BaseRequest;
 use MobiMarket\BlackBelt\Requests\DownloadReportRequest;
 use MobiMarket\BlackBelt\Responses\AccessTokenResponse;
 use MobiMarket\BlackBelt\Responses\AuthTokenResponse;
-use MobiMarket\BlackBelt\Responses\DownloadReportResponse;
 use Psr\Http\Message\ResponseInterface;
 use stdClass;
 use Illuminate\Support\Facades\Cache;
@@ -20,6 +19,8 @@ use MobiMarket\BlackBelt\Requests\ImeiSearchRequest;
 use MobiMarket\BlackBelt\Responses\CheckUserResponse;
 use MobiMarket\BlackBelt\Responses\DevicePricingAndGradingResponse;
 use MobiMarket\BlackBelt\Responses\ImeiSearchResponse;
+use MobiMarket\BlackBelt\Responses\DownloadPDFReportResponse;
+use MobiMarket\BlackBelt\Responses\DownloadXMLReportResponse;
 
 class BlackBelt
 {
@@ -42,9 +43,11 @@ class BlackBelt
     private $authenticated = false;
 
     private $accessTokenCache;
+    private $sessionKey;
+    private $guzzleClient;
 
     private $options = [
-        'base_uri'  => static::BASE_URL,
+        'base_uri'  => self::BASE_URL,
         'timeout'   => 10.0,
     ];
 
@@ -53,12 +56,13 @@ class BlackBelt
         'Accept'        => 'application/json',
     ];
 
-    public function __construct(string $clientKey, string $clientSecret, float $timeout): void
+    public function __construct(string $clientKey, string $clientSecret, float $timeout)
     {
         $this->clientKey            = $clientKey;
         $this->clientSecret         = $clientSecret;
         $this->options['timeout']   = $timeout;
         $this->accessTokenCache     = $this->getCachedAccessToken();
+        $this->sessionKey           = md5(time());
     }
 
     /**
@@ -68,7 +72,6 @@ class BlackBelt
     {
         if (null === $this->guzzleClient) {
             $this->guzzleClient = null;
-            $this->sessionKey = md5(time());
             $this->guzzleClient = new Client($this->options);
         }
 
@@ -92,25 +95,35 @@ class BlackBelt
     }
     /**
      * makes a plost request to the given endpoint
+     * 
+     * @return stdClass|GuzzleHttp\Psr7\Response
      */
-    public function makePostRequest(string $endpoint, BaseRequest $request, bool $dontRefresh = false): ?stdClass
-    {
+    public function makePostRequest(
+        string $endpoint,
+        BaseRequest $request,
+        bool $dontRefresh = false,
+        bool $returnRaw = false
+    ) {
         // check cache TTL
-        if (true === $this->checkCacheExpired()) {
-            $dontRefresh = false;
+        if (false === $dontRefresh && true === $this->checkCacheExpired()) {
             $this->authenticated = false;
         }
 
         if (false === $dontRefresh && false === $this->authenticated) {
             $this->authenticate();
         }
-
+        $request->setDeviceId($this->sessionKey);
         $response = $this->getClient()->post($endpoint, [
-            'form_params'   => $request->toArray(),
+            'json'          => ['request' => $request->toArray()],
             'headers'       => $this->headers,
         ]);
 
-        $decodedResponse = json_decode($response->getBody()->getContents());
+        if (true === $returnRaw) {
+            return $response;
+        }
+
+        $decodedResponse = json_decode($response->getBody());
+        $decodedResponse = $decodedResponse->response;
 
         if (
             in_array($decodedResponse->code, [204, 208])
@@ -153,12 +166,11 @@ class BlackBelt
         // clear any previous authorisation headers
         $this->clearAuthorisationHeader();
         // build new AuthRequest and get initial AuthResponse
-        $authRequest = new AuthTokenRequest($this->sessionKey, $this->clientKey, $this->clientSecret);
+        $authRequest = new AuthTokenRequest($this->clientKey, $this->clientSecret);
         $authResponse = $this->getAuthToken($authRequest);
         // set authorisation header with auth Token
         $this->setAuthorisationHeader($authResponse->grantType, $authResponse->authToken);
         // get Access Token and cache it
-        // TODO:: Cache access token ttl = 3590
         $accessRequest = new AccessTokenRequest($this->sessionKey);
         $accessResponse = $this->getAccessToken($accessRequest);
 
@@ -189,19 +201,31 @@ class BlackBelt
     /**
      * gets the access token from the cach implementation
      */
-    public function getCachedAccessToken(): AccessTokenResponse
+    public function getCachedAccessToken(): ?AccessTokenResponse
     {
         return Cache::get(static::CACHE_KEY);
     }
     /**
-     * makes a report download request.
+     * makes a xml report download request.
      * @throws ApiException 
      */
-    public function downloadReport(DownloadReportRequest $request): DownloadReportResponse
+    public function downloadXMLReport(DownloadReportRequest $request): DownloadXMLReportResponse
     {
+        $request->setReportFormat(DownloadReportRequest::FORMAT_XML);
         $response = $this->makePostRequest(static::ENDPOINT_DOWNLOAD_REPORT, $request);
-
-        return new DownloadReportResponse($response);
+        return new DownloadXMLReportResponse($response);
+    }
+    /**
+     * makes a pdf report download request.
+     * @throws ApiException 
+     */
+    public function downloadPDFReport(DownloadReportRequest $request): DownloadPDFReportResponse
+    {
+        $request->setReportFormat(DownloadReportRequest::FORMAT_PDF);
+        $response = $this->makePostRequest(static::ENDPOINT_DOWNLOAD_REPORT, $request, false, true);
+        $r = new stdClass;
+        $r->data = $response->getBody()->getContents();
+        return new DownloadPDFReportResponse($r);
     }
     /**
      * checks for an IMEI

@@ -10,11 +10,9 @@ class AuthTokenRequest extends BaseRequest
     public $clientKey;
     public $clientSecret;
 
-    public function __construct(string $deviceId, string $clientKey, string $clientSecret): void
+    public function __construct(string $clientKey, string $clientSecret)
     {
         $this->clientKey = $clientKey;
         $this->clientSecret = $clientSecret;
-
-        parent::__construct($deviceId);
     }
 }
