@@ -27,16 +27,16 @@ class BlackBelt
     /**
      * URL and enpoints for API
      */
-    const BASE_URL                  = 'https://api.blackbeltdefence.com';
-    const ENDPOINT_AUTH_TOKEN       =  'api/v1/auth-token';
-    const ENDPOINT_ACCESS_TOKEN     =  'api/v1/access-token';
-    const ENDPOINT_UPLOAD_REPORT    =  'api/v1/upload-report';
-    const ENDPOINT_DOWNLOAD_REPORT  =  'api/v1/download-report';
-    const ENDPOINT_CHECK_USER       =  'api/v1/check-user';
-    const ENDPOINT_GET_IMEI         =  'api/v1/get-imei';
-    const ENDPOINT_GET_PRICE        =  'api/v2/get-price';
+    public const BASE_URL                  = 'https://api.blackbeltdefence.com';
+    public const ENDPOINT_AUTH_TOKEN       =  'api/v1/auth-token';
+    public const ENDPOINT_ACCESS_TOKEN     =  'api/v1/access-token';
+    public const ENDPOINT_UPLOAD_REPORT    =  'api/v1/upload-report';
+    public const ENDPOINT_DOWNLOAD_REPORT  =  'api/v1/download-report';
+    public const ENDPOINT_CHECK_USER       =  'api/v1/check-user';
+    public const ENDPOINT_GET_IMEI         =  'api/v1/get-imei';
+    public const ENDPOINT_GET_PRICE        =  'api/v2/get-price';
 
-    const CACHE_KEY                 = 'BB_ACCESS_TOKEN';
+    public const CACHE_KEY                 = 'BB_ACCESS_TOKEN';
 
     private $clientKey;
     private $clientSecret;
@@ -94,8 +94,8 @@ class BlackBelt
         }
     }
     /**
-     * makes a plost request to the given endpoint
-     * 
+     * makes a post request to the given endpoint
+     *
      * @return stdClass|GuzzleHttp\Psr7\Response
      */
     public function makePostRequest(
@@ -105,13 +105,16 @@ class BlackBelt
         bool $returnRaw = false
     ) {
         // check cache TTL
-        if (false === $dontRefresh && true === $this->checkCacheExpired()) {
-            $this->authenticated = false;
+        if (false === $dontRefresh) {
+            if (true === $this->checkCacheExpired()) {
+                $this->authenticated = false;
+            }
+
+            if (false === $this->authenticated) {
+                $this->authenticate();
+            }
         }
 
-        if (false === $dontRefresh && false === $this->authenticated) {
-            $this->authenticate();
-        }
         $request->setDeviceId($this->sessionKey);
         $response = $this->getClient()->post($endpoint, [
             'json'          => ['request' => $request->toArray()],
@@ -179,7 +182,7 @@ class BlackBelt
         $this->saveTokenCache($accessResponse, 60 * 59);
     }
     /**
-     * save accessTokenResponse for $TTL 
+     * save accessTokenResponse for $TTL
      */
     public function saveTokenCache(AccessTokenResponse $response, int $ttl): void
     {
@@ -199,7 +202,7 @@ class BlackBelt
         return false;
     }
     /**
-     * gets the access token from the cach implementation
+     * gets the access token from the cache implementation
      */
     public function getCachedAccessToken(): ?AccessTokenResponse
     {
@@ -207,7 +210,7 @@ class BlackBelt
     }
     /**
      * makes a xml report download request.
-     * @throws ApiException 
+     * @throws ApiException
      */
     public function downloadXMLReport(DownloadReportRequest $request): DownloadXMLReportResponse
     {
@@ -217,19 +220,24 @@ class BlackBelt
     }
     /**
      * makes a pdf report download request.
-     * @throws ApiException 
+     * @throws ApiException
      */
     public function downloadPDFReport(DownloadReportRequest $request): DownloadPDFReportResponse
     {
         $request->setReportFormat(DownloadReportRequest::FORMAT_PDF);
+
+        /**
+         * @var \GuzzleHttp\Psr7\Response
+         */
         $response = $this->makePostRequest(static::ENDPOINT_DOWNLOAD_REPORT, $request, false, true);
-        $r = new stdClass;
+
+        $r = new stdClass();
         $r->data = $response->getBody()->getContents();
         return new DownloadPDFReportResponse($r);
     }
     /**
      * checks for an IMEI
-     * @throws ApiException 
+     * @throws ApiException
      */
     public function imeiSearch(ImeiSearchRequest $request): ImeiSearchResponse
     {
@@ -239,7 +247,7 @@ class BlackBelt
     }
     /**
      * checks a user is valid in BlackBelt
-     * @throws ApiException 
+     * @throws ApiException
      */
     public function checkUser(CheckUserRequest $request): CheckUserResponse
     {

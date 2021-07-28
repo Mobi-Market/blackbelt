@@ -1,9 +1,9 @@
 <?php
 
-namespace MobiMarket\BlackBelt\Responses\Entity;
+namespace MobiMarket\BlackBelt\Responses\Entities;
 
 use stdClass;
-use MobiMarket\BlackBelt\Responses\Entity\ImeiSearchDeviceReportEntity;
+use MobiMarket\BlackBelt\Responses\Entities\ImeiSearchDeviceReportEntity;
 
 class ImeiSearchDeviceEntity
 {
@@ -12,7 +12,7 @@ class ImeiSearchDeviceEntity
     public $serialNumber;
     public $reports;
 
-    public function __construct(stdClass $data): void
+    public function __construct(stdClass $data)
     {
         $this->id           = $data->id;
         $this->imei         = $data->imei;

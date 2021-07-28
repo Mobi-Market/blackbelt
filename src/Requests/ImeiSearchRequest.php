@@ -22,7 +22,7 @@ class ImeiSearchRequest extends BaseRequest
         'OTA-analyst',
     ];
     /**
-     * @throws InvalidReportTypeException 
+     * @throws InvalidReportTypeException
      */
     public function setReportType(string $reportType): void
     {

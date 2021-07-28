@@ -3,7 +3,7 @@
 namespace MobiMarket\BlackBelt\Responses;
 
 use MobiMarket\BlackBelt\Responses\BaseResponse;
-use MobiMarket\BlackBelt\Responses\Entity\ImeiSearchDeviceEntity;
+use MobiMarket\BlackBelt\Responses\Entities\ImeiSearchDeviceEntity;
 use stdClass;
 
 class ImeiSearchResponse extends BaseResponse

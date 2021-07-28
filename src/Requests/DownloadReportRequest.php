@@ -7,11 +7,11 @@ use MobiMarket\BlackBelt\Requests\BaseRequest;
 
 class DownloadReportRequest extends BaseRequest
 {
-    const TYPE_DATAWIPE = 'datawipe';
-    const TYPE_ANALYST  = 'analyst';
-    const TYPE_OTA      = 'OTA-analyst';
-    const FORMAT_PDF    = 'pdf';
-    const FORMAT_XML    = 'xml';
+    public const TYPE_DATAWIPE = 'datawipe';
+    public const TYPE_ANALYST  = 'analyst';
+    public const TYPE_OTA      = 'OTA-analyst';
+    public const FORMAT_PDF    = 'pdf';
+    public const FORMAT_XML    = 'xml';
 
     public $reportType;
     public $reportFormat;
@@ -20,7 +20,7 @@ class DownloadReportRequest extends BaseRequest
     public $reportId;
 
     /**
-     * @throws InvalidReportTypeException 
+     * @throws InvalidReportTypeException
      */
     public function setReportType(string $reportType): void
     {
@@ -31,7 +31,7 @@ class DownloadReportRequest extends BaseRequest
         $this->reportType = $reportType;
     }
     /**
-     * @throws InvalidReportTypeException 
+     * @throws InvalidReportTypeException
      */
     public function setReportFormat(string $reportFormat): void
     {
